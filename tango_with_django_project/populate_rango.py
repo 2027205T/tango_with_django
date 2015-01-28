@@ -6,8 +6,20 @@ django.setup()
 
 from rango.models import Category, Page
 
-
 def populate():
+   
+    student_name = add_cat('Omar Tufail')
+
+    add_page(cat=student_name,
+        title="Github Profile: Omar Tufail",
+        url="https://github.com/2027205T/",
+        views=777)
+
+    add_page(cat=student_name,
+        title="Python Anywhere",
+        url="https://www.pythonanywhere.com/user/2027205t/",
+        views=555)
+
     python_cat = add_cat('Python', 128, 64)
 
     add_page(cat=python_cat,
