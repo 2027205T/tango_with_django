@@ -5,7 +5,12 @@
     </head>
 
     <body>
-        <h1>Rango says...hello world!</h1>
+		
+		{% if user.is_authenticated %}
+		<h1>Rango says... hello {{ user.username }}!</h1>
+		{% else %}
+		<h1>Rango says... hello world!</h1>
+		{% endif %}
 
         {% if categories %}
             <ul>
@@ -32,8 +37,17 @@
        Misc.<br />
 
        <ul>
-       	<li><a href="/rango/add_category/">Add a New Category</a></li>
-        <li><a href="/rango/about/">About</a></li>
+
+		{% if user.is_authenticated %}
+		<li><a href="/rango/add_category/">Add a New Category</a></li>
+		<li><a href="/rango/restricted/">Restricted Page</a></li>
+		<li><a href="/rango/logout/">Logout</a></li>
+		{% else %}
+		<li><a href="/rango/register/">Register Here</a></li>
+		<li><a href="/rango/login/">Login</a></li>
+		{% endif %}
+
+  		<li><a href="/rango/about/">About</a></li>
        </ul>  
   </body>
 </html>
