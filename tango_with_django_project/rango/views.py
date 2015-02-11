@@ -11,7 +11,8 @@ from django.contrib.auth import logout
 
 @login_required
 def restricted(request):
-    return HttpResponse("Since you're logged in, you can see this text!")
+	# Take the user back to the homepage.
+    return HttpResponseRedirect('/rango/restricted.html')
 
 def index(request):
 
@@ -223,3 +224,15 @@ def user_logout(request):
 
     # Take the user back to the homepage.
     return HttpResponseRedirect('/rango/')
+
+def restricted(request):
+
+    # Construct a dictionary to pass to the template engine as its context.
+    # Note the key boldmessage is the same as {{ boldmessage }} in the template!
+    context_dict = {'boldmessage': "Oops :)"}
+
+    # Return a rendered response to send to the client.
+    # We make use of the shortcut function to make our lives easier.
+    # Note that the first parameter is the template we wish to use.
+
+    return render(request, 'rango/restricted.html', context_dict)
