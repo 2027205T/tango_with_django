@@ -9,6 +9,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from datetime import datetime
+from rango.bing_search import run_query
 
 @login_required
 def restricted(request):
@@ -272,3 +273,16 @@ def restricted(request):
     # Note that the first parameter is the template we wish to use.
 
     return render(request, 'rango/restricted.html', context_dict)
+
+def search(request):
+
+    result_list = []
+
+    if request.method == 'POST':
+        query = request.POST['query'].strip()
+
+        if query:
+            # Run our Bing function to get the results list!
+            result_list = run_query(query)
+
+    return render(request, 'rango/search.html', {'result_list': result_list})
