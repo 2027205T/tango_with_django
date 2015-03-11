@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rango.models import Category
 from rango.models import Page
+from rango.models import User
 from rango.forms import CategoryForm
 from rango.forms import PageForm
 from rango.forms import UserForm, UserProfileForm
@@ -80,7 +81,7 @@ def category(request, category_name_slug):
     context_dict['result_list'] = None
     context_dict['query'] = None
     if request.method == 'POST':
-        query = request.POST['query'].strip()
+        query = request.POST.get('query', '').strip()
 
         if query:
             # Run our Bing function to get the results list!
@@ -301,3 +302,65 @@ def track_url(request):
                 pass
 
     return redirect(url)
+
+@login_required
+def register_profile(request):
+    if request.method == 'POST':
+        profile_form = UserProfileForm(data=request.POST)
+        if profile_form.is_valid():
+            profile = profile_form.save(commit=False)
+            profile.user = User.objects.get(id=request.user.id)
+            if 'picture' in request.FILES:
+                try:
+                    profile.picture = request.FILES['picture']
+                except:
+                    pass
+            profile.save()
+            return redirect('index')
+    else:
+        profile_form = UserProfileForm()
+    return render(request, 'registration/profile_registration.html', {'profile_form': profile_form})
+
+@login_required
+def profile(request, user_id = None):
+    if user_id is not None:
+        context_dict = {'user': User.objects.get(id=user_id)}
+    else:
+        context_dict = {'user': User.objects.get(id=request.user.id)}
+    try:
+        context_dict['profile'] = UserProfile.objects.get(user=context_dict['user'])
+    except:
+        context_dict['profile'] = None
+    context_dict['myprofile'] = user_id is None or user_id == request.user.id
+    return render(request, 'registration/profile.html', context_dict)
+
+@login_required
+def edit_profile(request):
+    try:
+        users_profile = UserProfile.objects.get(user=request.user)
+    except:
+        users_profile = None
+    if request.method == 'POST':
+        profile_form = UserProfileForm(data=request.POST, instance=users_profile)
+        if profile_form.is_valid():
+            profile_updated = profile_form.save(commit=False)
+            if users_profile is None:
+                profile_updated.user = User.objects.get(id=request.user.id)
+            if 'picture' in request.FILES:
+                try:
+                    profile_updated.picture = request.FILES['picture']
+                except:
+                    pass
+            profile_updated.save()
+            return redirect('profile')
+    else:
+        form = UserProfileForm(instance=users_profile)
+        return render(request, 'registration/profile_edit.html', {'profile_form': form})
+
+@login_required
+def user_list(request):
+    users = User.objects.all()
+    return render(request, 'registration/user_list.html', {'users': users})
+
+def bad_url(request):
+	return render(request, 'rango/nopage.html')
